@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import datasets
 import mlflow
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
+import os
 
 import mlflow.sklearn
 
@@ -29,6 +29,15 @@ def evaluate_metrics(actual, predicted):
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     np.random.seed(40)
+
+    #One must be commented **either** the local or the remote tracking URI
+    
+    # Set the local directory to log MLflow runs(uncomment the line below if you want to run on local)
+    # mlflow.set_tracking_uri('file://' + os.path.abspath('./mlruns'))
+
+    #Set the tracking URI based on the environment (uncomment this codes if you want to run on dagshub)
+    remote_server_uri = "https://dagshub.com/bende.tymer/MLOps-Basics.mlflow"
+    mlflow.set_tracking_uri(remote_server_uri)
 
     # split the dataset
     train, test = train_test_split(df, test_size=0.2)
@@ -52,15 +61,6 @@ if __name__ == "__main__":
     recall = recall_score(test_y, predicted_, average='weighted')
     f1 = f1_score(test_y, predicted_, average='weighted')
 
-    # Set the tracking URI based on the environment
-    if "dagshub.com" in urlparse(mlflow.get_tracking_uri()).netloc:
-        # For Dagshub
-        remote_server_uri = "https://dagshub.com/bende.tymer/MLOps-Basics.mlflow"
-        mlflow.set_tracking_uri(remote_server_uri)
-    else:
-        # For local
-        mlflow.set_tracking_uri("file:/home/benedictdebrah/Desktop/MLOps-Basics/mlruns")
-
     # Log mlflow attributes for mlflow UI
     metrics = {
         "accuracy": accuracy,
@@ -71,7 +71,6 @@ if __name__ == "__main__":
 
     mlflow.log_metrics(metrics)
     mlflow.sklearn.log_model(rc, "model")
-
 
 
 
