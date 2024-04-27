@@ -31,3 +31,5 @@ Please note that this project is a basic introduction to MLflow and does not fol
 ## Future Work
 
 I plan to explore more advanced features of MLflow and use it in more complex machine learning projects. I also plan to follow a more rigorous data science workflow in my future projects.
+
+

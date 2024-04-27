@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 import warnings
 import numpy as np
 import pandas as pd
@@ -6,7 +7,8 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn import datasets
 import mlflow
-from mlflow.models import infer_signature
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
 
 import mlflow.sklearn
 
@@ -43,15 +45,33 @@ if __name__ == "__main__":
 
     # evaluate metrics
     report = evaluate_metrics(test_y, predicted_)
-    print("The report for prediction",report)
+    print("The report for prediction", report)
 
-   # infer model signature
-    train_pred = rc.predict(train_x)
-    signature = infer_signature(train_x, train_pred)
+    accuracy = accuracy_score(test_y, predicted_)
+    precision = precision_score(test_y, predicted_, average='weighted')
+    recall = recall_score(test_y, predicted_, average='weighted')
+    f1 = f1_score(test_y, predicted_, average='weighted')
+
+    # Set the tracking URI based on the environment
+    if "dagshub.com" in urlparse(mlflow.get_tracking_uri()).netloc:
+        # For Dagshub
+        remote_server_uri = "https://dagshub.com/bende.tymer/MLOps-Basics.mlflow"
+        mlflow.set_tracking_uri(remote_server_uri)
+    else:
+        # For local
+        mlflow.set_tracking_uri("file:/home/benedictdebrah/Desktop/MLOps-Basics/mlruns")
 
     # Log mlflow attributes for mlflow UI
     metrics = {
-        "classification_report": report
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1
     }
+
     mlflow.log_metrics(metrics)
-    mlflow.sklearn.log_model(rc, "model", signature=signature)
+    mlflow.sklearn.log_model(rc, "model")
+
+
+
+
